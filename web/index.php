@@ -4,6 +4,7 @@
 
 	require __dir__."/../vendor/autoload.php";
 	$app = require __dir__."/../src/app.php";
+	require __dir__."/../src/entity/User.php";
 	require __dir__."/../src/controllers/ControllersLoader.php";
 	require __dir__."/../src/mount-controllers.php";
 	$app->run();

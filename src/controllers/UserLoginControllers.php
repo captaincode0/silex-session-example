@@ -5,6 +5,7 @@
 	use Silex\ControllerProviderInterface;
 	use Symfony\Component\HttpFoundation\Request;
 	use Symfony\Component\HttpFoundation\Response;
+	use MyApp\Entity\User;
 
 	class UserLoginControllers implements ControllerProviderInterface{
 		public function connect(Application $app){
@@ -19,6 +20,8 @@
 					$app["session"]->set("is_auth", true);
 					return new Response("User successfuly logged", 200);
 				}
+
+				return new Response("The user and the password are incorrect", 403);
 			})
 				->before(function(Request $request, Application $app){
 					//check if the session is started
@@ -26,12 +29,24 @@
 						return $app->redirect($app["url_generator"]->generate("private.profile"));
 
 					//validate all the fields
-					$username = $request->get("username");
+					/*$username = $request->get("username");
 					$password = $request->get("password");
 
 					if(!preg_match("/^[a-zA-Z_0-9]+$/", $username)
 						|| !preg_match("/^[a-zA-Z_0-9]+$/", $password))
-						return new Response("The user name or the password are wrong.", 403);
+						return new Response("The user name or the password are wrong.", 403);*/
+
+					$user = new User($request->get("username"), $request->get("password"));
+
+					$errors = $app["validator"]->validate($user);
+
+					if(count($errors) > 0){
+						$error_message = "";
+						foreach($errors as $error)
+							$error_message .= $error_message."<br>";
+
+						return new Response($error_message, 403);
+					}
 				})
 				->bind("middleware.auth.login");
 
